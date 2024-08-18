@@ -225,3 +225,23 @@ font-family: 'Source Code Pro', monospace;
       opacity: 0;
   }
 }
+
+.clear-button {
+  position: fixed; /* Fix the position */
+  bottom: 20px; /* Distance from the bottom */
+  right: 20px; /* Distance from the right */
+  padding: 10px 20px; /* Padding for the button */
+  font-size: 16px; /* Font size */
+  font-weight: bold; /* Bold text */
+  color: white; /* Text color */
+  background-color: red; /* Background color */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s; /* Transition for hover effect */
+  z-index: 1000; /* Ensure it appears above other content */
+}
+
+.clear-button:hover {
+  background-color: darkred; /* Darker red on hover */
+}

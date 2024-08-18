@@ -48,6 +48,11 @@ function App() {
         }
     };
 
+    const clearContent = () => {
+        setcontent(""); // Clear the content
+        setTextcharacter(0); // Reset the text character count
+    };
+
     return (
         <div>
             {loading ? (
@@ -73,6 +78,9 @@ function App() {
                             You can start typing anything!
                         </div>
                     )}
+                    <button className="clear-button" onClick={clearContent}>
+                        Clear
+                    </button>
                 </div>
             )}
         </div>
