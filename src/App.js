@@ -8,6 +8,7 @@ function App() {
     const [textcharacter, setTextcharacter] = useState(0);
     const [loading, setLoading] = useState(true); // State for preloader visibility
     const [hackingText, setHackingText] = useState([]); // State for hacking text lines
+    const [showTypingPrompt, setShowTypingPrompt] = useState(false); // State for typing prompt visibility
 
     const containerRef = useRef(null); // Declare the ref here
 
@@ -26,6 +27,15 @@ function App() {
                 setTimeout(() => setLoading(false), 5000); // Hide preloader after 5 seconds
             });
     }, []);
+
+    useEffect(() => {
+        // Focus the container only when loading is false
+        if (!loading && containerRef.current) {
+            containerRef.current.focus();
+            setShowTypingPrompt(true); // Show the typing prompt
+            setTimeout(() => setShowTypingPrompt(false), 3000); // Hide prompt after 3 seconds
+        }
+    }, [loading]); // Dependency on loading state
 
     const runscript = () => {
         setTextcharacter(textcharacter + 3);
@@ -58,6 +68,11 @@ function App() {
                     <div id='source'>
                         {content}
                     </div>
+                    {showTypingPrompt && (
+                        <div className="typing-prompt">
+                            You can start typing anything!
+                        </div>
+                    )}
                 </div>
             )}
         </div>
