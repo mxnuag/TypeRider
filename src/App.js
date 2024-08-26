@@ -1,19 +1,22 @@
-import logo from './logo.svg';
+import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
-import { useEffect, useRef, useState } from 'react';
+import { signInWithGoogle, logOut, auth } from './Firebase';
+import { onAuthStateChanged } from "firebase/auth";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
     const [sourcecode, setsourcecode] = useState("");
     const [content, setcontent] = useState("");
     const [textcharacter, setTextcharacter] = useState(0);
-    const [loading, setLoading] = useState(true); // State for preloader visibility
-    const [hackingText, setHackingText] = useState([]); // State for hacking text lines
-    const [showTypingPrompt, setShowTypingPrompt] = useState(false); // State for typing prompt visibility
+    const [loading, setLoading] = useState(true);
+    const [hackingText, setHackingText] = useState([]);
+    const [showTypingPrompt, setShowTypingPrompt] = useState(false);
+    const [user, setUser] = useState(null);
 
-    const containerRef = useRef(null); // Declare the ref here
+    const containerRef = useRef(null);
 
     useEffect(() => {
-        // Fetch the source code
         fetch('code.txt')
             .then((res) => res.text())
             .then((text) => {
@@ -23,19 +26,30 @@ function App() {
                     "Just kidding! Launching your site..."
                 ]);
                 setLoading(true);
-                // Set a timeout for the preloader
-                setTimeout(() => setLoading(false), 5000); // Hide preloader after 5 seconds
+                setTimeout(() => setLoading(false), 5000);
             });
     }, []);
 
     useEffect(() => {
-        // Focus the container only when loading is false
         if (!loading && containerRef.current) {
             containerRef.current.focus();
-            setShowTypingPrompt(true); // Show the typing prompt
-            setTimeout(() => setShowTypingPrompt(false), 3000); // Hide prompt after 3 seconds
+            setShowTypingPrompt(true);
+            setTimeout(() => setShowTypingPrompt(false), 3000);
         }
-    }, [loading]); // Dependency on loading state
+    }, [loading]);
+
+    useEffect(() => {
+        onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+            if (currentUser && !localStorage.getItem('loginToastShown')) {
+                toast.success(`Welcome ${currentUser.displayName}!`, {
+                    position: "top-right",
+                    autoClose: 3000,
+                });
+                localStorage.setItem('loginToastShown', 'true');
+            }
+        });
+    }, []);
 
     const runscript = () => {
         setTextcharacter(textcharacter + 3);
@@ -49,12 +63,34 @@ function App() {
     };
 
     const clearContent = () => {
-        setcontent(""); // Clear the content
-        setTextcharacter(0); // Reset the text character count
+        setcontent("");
+        setTextcharacter(0);
+    };
+
+    const handleLogin = async () => {
+        try {
+            await signInWithGoogle();
+        } catch (error) {
+            console.error("Error during login", error);
+        }
+    };
+
+    const handleLogout = async () => {
+        try {
+            await logOut();
+            toast.info("You have logged out successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+            });
+            localStorage.removeItem('loginToastShown'); // Reset the toast shown flag on logout
+        } catch (error) {
+            console.error("Error during logout", error);
+        }
     };
 
     return (
         <div>
+            <ToastContainer />
             {loading ? (
                 <div className="preloader">
                     <div className="hacking-text">
@@ -81,6 +117,21 @@ function App() {
                     <button className="clear-button" onClick={clearContent}>
                         Clear
                     </button>
+                    <div className="auth-buttons">
+                        {user ? (
+                            <>
+                                <span className="user-name">{user.displayName}</span>
+                                <img src={user.photoURL} alt="Profile" className="profile-icon" />
+                                <button className="auth-button" onClick={handleLogout}>
+                                    Logout
+                                </button>
+                            </>
+                        ) : (
+                            <button className="auth-button" onClick={handleLogin}>
+                                Login with Google
+                            </button>
+                        )}
+                    </div>
                 </div>
             )}
         </div>
