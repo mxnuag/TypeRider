@@ -57,6 +57,13 @@ function App() {
     };
 
     const handlekeychanges = (e) => {
+        if (!user) {
+            toast.warn("Please log in to be a hacker!", {
+                position: "top-right",
+                autoClose: 3000,
+            });
+            return;
+        }
         if (e.key !== 'Escape') {
             runscript();
         }
@@ -111,7 +118,7 @@ function App() {
                     </div>
                     {showTypingPrompt && (
                         <div className="typing-prompt">
-                            You can start typing anything!
+                            {user ? "You can start typing anything!" : "Please log in to be a hacker!"}
                         </div>
                     )}
                     <button className="clear-button" onClick={clearContent}>
